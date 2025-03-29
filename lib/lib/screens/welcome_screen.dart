@@ -19,7 +19,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void _goToHomeDashboard() {
     final userName = _nameController.text.trim();
     // TODO: Store userName somewhere or pass it forward if needed.
-    // onTextFieldSubmit(name): save name to local storage & naviagate to dashboard
     Navigator.pushReplacementNamed(context, '/home');
   }
 
