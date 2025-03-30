@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class ProgressTrackingScreen extends StatelessWidget {
   const ProgressTrackingScreen({Key? key}) : super(key: key);
