@@ -50,6 +50,30 @@ final List<FlSpot> weightliftingData = [
       FlSpot(5, 400),
     ];
 
+    Widget _buildGoalColumn(String progress, String goalText) {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      // Show the progress percentage
+      Text(
+        progress,
+        style: const TextStyle(
+          fontSize: 24, // Make it stand out
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      const SizedBox(height: 8), // Add some breathing room
+      // Show the goal description
+      Text(
+        goalText,
+        textAlign: TextAlign.center, // Center-align for neatness
+        style: const TextStyle(fontSize: 16), // Smaller but still clear
+      ),
+    ],
+  );
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -115,28 +139,29 @@ final List<FlSpot> weightliftingData = [
                           ),
                         ),
                         borderData: FlBorderData(show: true),
-
-                        
                       )
                     )
                   )
-                  // Add Workout Button (text)
-                  GestureDetector(
-                    onTap: () {
-                      // Handle "Add Workout" action
-                    },
-                    child: const Text(
-                      'Add Workout',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        decoration: TextDecoration.underline,
-                      ),
+
+                  // My Goals Section
+                  const Text(
+                    'My Goals',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildGoalColumn('30%', 'Bench\nPress'),
+                      _buildGoalColumn('70%', 'Squat\n225lbs'),
+                      _buildGoalColumn('80%', 'Dead Lift\n235lbs'),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                    ],
                     ),
                   ),
-                ],
-              ),
-            ),
 
             // 2) Progression Title
             Padding(
@@ -200,49 +225,3 @@ final List<FlSpot> weightliftingData = [
           ],
         ),
       ),
-
-      // 5) Bottom Navigation
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex:
-            2, // For example, if "ProTrack" is the 3rd item (0-based index)
-        onTap: (index) {
-          // Handle navigation
-          // e.g., if (index == 0) -> Navigator.pushNamed(context, '/workLog');
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.fitness_center),
-            label: 'Work Log',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant),
-            label: 'Cal Track',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.trending_up),
-            label: 'ProTrack',
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Helper widget for a single goal
-  Widget _buildGoalColumn(String progress, String goalText) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          progress,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          goalText,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 16),
-        ),
-      ],
-    );
-  }
-}
