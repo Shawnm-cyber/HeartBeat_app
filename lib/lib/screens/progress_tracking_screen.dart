@@ -4,6 +4,53 @@ import 'package:fl_chart/fl_chart.dart';
 class ProgressTrackingScreen extends StatelessWidget {
   const ProgressTrackingScreen({Key? key}) : super(key: key);
 
+  // Method to create a legend item
+Widget _buildLegendItem(Color color, String label) {
+  return Row(
+    children: [
+      Container(
+        width: 12,
+        height: 12,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+        ),
+      ),
+      const SizedBox(width: 8), // Space between circle and label
+      Text(
+        label,
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+      ),
+    ],
+  );
+}
+
+final List<FlSpot> weightliftingData = [
+      FlSpot(0, 100),
+      FlSpot(1, 105),
+      FlSpot(2, 110),
+      FlSpot(3, 115),
+      FlSpot(4, 120),
+      FlSpot(5, 125),
+    ];
+    final List<FlSpot> runningDistanceData = [
+      FlSpot(0, 2.0),
+      FlSpot(1, 2.4),
+      FlSpot(2, 2.8),
+      FlSpot(3, 3.2),
+      FlSpot(4, 3.6),
+      FlSpot(5, 3.8),
+    ];
+    final List<FlSpot> caloriesBurnedData = [
+      FlSpot(0, 250),
+      FlSpot(1, 350),
+      FlSpot(2, 150),
+      FlSpot(3, 200),
+      FlSpot(4, 300),
+      FlSpot(5, 400),
+    ];
+
+
   @override
   Widget build(BuildContext context) {
     // Replace this color with whatever you want as the background.
@@ -29,29 +76,50 @@ class ProgressTrackingScreen extends StatelessWidget {
             ),
             // 1) Custom Top Bar
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Row(
+              padding: const EdgeInsets.all(16.0), // Just some space available around the content
+              child: Column(
                 // Spread out the left icon, center text, and right button
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Home Icon
-                  IconButton(
-                    onPressed: () {
-                      // Example: Go back home or open a drawer
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.home),
-                  ),
-
-                  // Title
+                  // Title Section
                   const Text(
-                    'HeartBeat',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    'Progression',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
+                  const SizedBox(height: 16),
 
+                  //Legend Section
+                  Row(children: [
+                    _buildLegendItem(Colors.amber, 'Weightlifting'),
+                    const SizedBox(width: 16),
+                    _buildLegendItem(Colors.lime, 'Running Distance'),
+                    const SizedBox(width: 16),
+                    _buildLegendItem(Colors.pink, 'Calories Burned'),
+                  ],),
+                  const SizedBox(height: 20),
+
+                  // Line Chart Section
+                  SizedBox(
+                    height: 300,
+                    width: double.infinity,
+                    child: LineChart(
+                      LineChartData(
+                        gridData: FlGridData(show: true), // Shows grid lines
+
+                        titlesData: FlTitlesData(
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: true, reservedSize: 30),
+                          ),
+                        ),
+                        borderData: FlBorderData(show: true),
+
+                        
+                      )
+                    )
+                  )
                   // Add Workout Button (text)
                   GestureDetector(
                     onTap: () {
