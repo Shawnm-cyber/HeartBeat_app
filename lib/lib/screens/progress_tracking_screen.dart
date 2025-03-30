@@ -13,9 +13,20 @@ class ProgressTrackingScreen extends StatelessWidget {
     return Scaffold(
       // We'll build a custom top section and bottom nav, so we set the AppBar to null:
       backgroundColor: backgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
+      appBar: AppBar(
+        leading: IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () {
+              Navigator.pushReplacementNamed(context, '/home');
+            },
+        ),
+        title: const Text('Progression'),
+        actions: [
+          IconButton(icon: const Icon(Icons.add), onPressed: () {
+            Navigator.pushNamed(context, '/addGoal');
+          }),
+              ],
+            ),
             // 1) Custom Top Bar
             Padding(
               padding: const EdgeInsets.symmetric(
