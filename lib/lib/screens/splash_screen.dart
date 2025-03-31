@@ -17,7 +17,19 @@ class _SplashScreenState extends State<SplashScreen> {
     _checkForSavedName();
   }
   
+  // Check if user's name is already saved
+  Future<void> _checkForSavedName() async {
+    final prefys = await SharedPreferences.getInstance();
+    final savedName = prefys.getString('user_name');
+    if (savedName != null && savedName.isNotEmpty) {
+      // If name exists, navigate to home screen after a short delay
+      Future.delayed(const Duration(seconds: 3), () {
+        Navigator.pushReplacementNamed(context, '/home');
+      });
+    }
+  }
 
+  
   void _goToHomeDashboard() {
     final userName = _nameController.text.trim();
     // TODO: Store userName somewhere or pass it forward if needed.
