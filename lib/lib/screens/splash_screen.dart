@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({Key? key}) : super(key: key);
 
   @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
+class _SplashScreenState extends State<SplashScreen> {
   final TextEditingController _nameController = TextEditingController();
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _checkForSavedName();
   }
+  
 
   void _goToHomeDashboard() {
     final userName = _nameController.text.trim();
