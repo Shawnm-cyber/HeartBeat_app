@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import '../models/workout.dart';
 
 class WorkoutLogScreen extends StatefulWidget {
   const WorkoutLogScreen({Key? key}) : super(key: key);
@@ -8,99 +10,181 @@ class WorkoutLogScreen extends StatefulWidget {
 }
 
 class _WorkoutLogScreenState extends State<WorkoutLogScreen> {
-  final TextEditingController _typeController = TextEditingController();
-  final TextEditingController _weightController = TextEditingController();
-  final TextEditingController _repsController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _weightController = TextEditingController();
+  final _repsController = TextEditingController();
+  final _notesController = TextEditingController();
+
+  late Box<Workout> workoutBox;
+
+  @override
+  void initState() {
+    super.initState();
+    workoutBox = Hive.box<Workout>('workoutsBox');
+  }
+
+  void _saveWorkout() {
+    if (_formKey.currentState!.validate()) {
+      final newWorkout = Workout(
+        name: _nameController.text.trim(),
+        weight: double.tryParse(_weightController.text) ?? 0,
+        reps: int.tryParse(_repsController.text) ?? 0,
+        notes: _notesController.text.trim(),
+        date: DateTime.now(),
+      );
+      workoutBox.add(newWorkout);
+      setState(() {
+        // Clear the form fields after saving
+        _nameController.clear();
+        _weightController.clear();
+        _repsController.clear();
+        _notesController.clear();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Workout saved!')),
+      );
+    }
+  }
+
+  void _cancelWorkout() {
+    // Clear the form fields if user cancels entry
+    _nameController.clear();
+    _weightController.clear();
+    _repsController.clear();
+    _notesController.clear();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Workout entry canceled.')),
+    );
+  }
 
   @override
   void dispose() {
-    _typeController.dispose();
+    _nameController.dispose();
     _weightController.dispose();
     _repsController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const backgroundColor = Color(0xFFDCE6D7);
+    // Retrieve the workouts and reverse the list to show the newest first.
+    final workouts = workoutBox.values.toList().reversed.toList();
 
     return Scaffold(
-      backgroundColor: backgroundColor,
-      body: SafeArea(
+      appBar: AppBar(
+        title: const Text('Workout Log'),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: _cancelWorkout,
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.check),
+            onPressed: _saveWorkout,
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Top bar with cancel, timer, confirm
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8,
+            // Form Card for new workout entry
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.red, size: 32),
-                    onPressed: () {
-                      Navigator.pop(context); // Or clear form
-                    },
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Exercise Name',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) => value!.isEmpty
+                            ? 'Please enter an exercise name'
+                            : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _weightController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Weight (kg/lb)',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _repsController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Reps',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _notesController,
+                        maxLines: 2,
+                        decoration: const InputDecoration(
+                          labelText: 'Notes (optional)',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ],
                   ),
-                  const Text(
-                    '0:11:24:15',
-                    style: TextStyle(
-                      fontFamily: 'Courier',
-                      fontSize: 16,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.check,
-                      color: Colors.green,
-                      size: 32,
-                    ),
-                    onPressed: () {
-                      // Save workout
-                    },
-                  ),
-                ],
+                ),
               ),
             ),
-
+            const SizedBox(height: 16),
+            const Divider(),
             const SizedBox(height: 8),
-
-            // Title
             const Text(
-              'HeartBeat',
+              'Workout History',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const Text(
-              'Work log',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+            const SizedBox(height: 8),
+            // History log list
+            Expanded(
+              child: workouts.isEmpty
+                  ? const Center(child: Text('No workouts logged yet.'))
+                  : ListView.builder(
+                      itemCount: workouts.length,
+                      itemBuilder: (context, index) {
+                        final workout = workouts[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          child: ListTile(
+                            title: Text(workout.name),
+                            subtitle: Text(
+                              'Weight: ${workout.weight}, Reps: ${workout.reps}\n'
+                              '${workout.notes ?? ''}\n'
+                              '${workout.date.toLocal().toString().split(".")[0]}',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
             ),
-
-            const SizedBox(height: 24),
-
-            // Input Fields
-            _buildInputField('Workout Type', _typeController),
-            _buildInputField('Weight', _weightController),
-            _buildInputField('Reps', _repsController),
-
-            // onSaveWorkout(type, weight, reps, timestamp):
-            //  validate input
-            //   workout = create WorkoutModel(type, weight, reps, timestamp)
-            //  save workout to local database
-            //
           ],
         ),
       ),
-
       // Bottom Navigation Bar
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0, // Work Log tab selected
+        currentIndex: 0, // assuming Workout Log is the first tab
         onTap: (index) {
           switch (index) {
             case 0:
-              break; // Already here
+              // Already on Workout Log
+              break;
             case 1:
               Navigator.pushNamed(context, '/calorieTracker');
               break;
@@ -128,27 +212,11 @@ class _WorkoutLogScreenState extends State<WorkoutLogScreen> {
             icon: Icon(Icons.trending_up),
             label: 'ProTrack',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: ''),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInputField(String label, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: Colors.purple.shade100.withOpacity(0.2),
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.cancel),
-            onPressed: () => controller.clear(),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: '',
           ),
-          border: const UnderlineInputBorder(),
-        ),
+        ],
       ),
     );
   }

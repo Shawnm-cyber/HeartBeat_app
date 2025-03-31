@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'models/meal.dart';
 import 'models/routine.dart';
+import 'models/workout.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,8 @@ void main() async {
   Hive.registerAdapter(MealAdapter());
   Hive.registerAdapter(RoutineAdapter());
   Hive.registerAdapter(RoutineSetAdapter());
+  Hive.registerAdapter(WorkoutAdapter());
+  await Hive.openBox<Workout>('workoutsBox');
   await Hive.openBox<Meal>('mealsBox');
   await Hive.openBox('settingsBox');
   await Hive.openBox<Routine>('routinesBox');
