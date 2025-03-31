@@ -38,7 +38,7 @@ class SettingsScreen extends StatelessWidget {
 
         // Goal Section
         _buildSettingsItem(
-          icon.Icons.flag_outlined,
+          icon: Icons.flag_outlined,
           title: 'Goals',
           onTap: () {
             // Will navigate to goal settings
@@ -46,7 +46,30 @@ class SettingsScreen extends StatelessWidget {
           },
         ),
         const Divider(),
+        
+        // Measurement Unit Section
+        _buildSettingsItem(
+          icon: Icons.straighten,
+          title: 'Measurement Unit',
+          onTap: () {
+            // Will navigate to measurement unit settings
+            Navigator.pushNamed(context,'/measurementUnit');
+          },
+        ),
+        const Divider(),
 
-        )
+        //Notifications Section
+        _buildSettingsItem(
+          icon: Icons.notifications_none,
+          title: 'Notifications',
+          onTap: ()  {
+          // Will navigate to notification settings
+          Navigator.pushNamed(context, '/notifications');
+          },
+        ),
+        const Divider(),
+        
+        ),
+      ),
     ],
 ),
