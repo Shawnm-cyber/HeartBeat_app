@@ -163,33 +163,6 @@ final List<FlSpot> weightliftingData = [
                     ),
                   ),
 
-            // 2) Progression Title
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                'Progression',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-
-            // 3) Chart / Graph Placeholder
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16.0),
-              height: 200,
-              decoration: BoxDecoration(
-                color:
-                    Colors.black87, // Dark background for the chart placeholder
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              child: const Center(
-                child: Text(
-                  'Line Chart Placeholder',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
 
             // 4) My Goals Section
             Expanded(
@@ -216,6 +189,15 @@ final List<FlSpot> weightliftingData = [
                         _buildGoalColumn('80%', 'Dead lift\n235lbs.'),
                       ],
                     ),
+                    const SizedBox(height: 20),
+
+                    // Motivational Message Section
+                    const Text(
+                      'You are stronger version of yourself!',
+                      style: 
+                        TextStyle(fontSize: 16, fontStyle: FontStyle.italic,color:Colors.black87),
+                    ),
+                    const SizedBox(height: 20),
 
                     // You can add more widgets or space below if needed
                   ],
