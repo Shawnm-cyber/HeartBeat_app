@@ -35,7 +35,18 @@ class SettingsScreen extends StatelessWidget {
           },
         ),
         const Divider(),
-        
+
+        // Goal Section
+        _buildSettingsItem(
+          icon.Icons.flag_outlined,
+          title: 'Goals',
+          onTap: () {
+            // Will navigate to goal settings
+            Navigator.pushNamed(context,' /goals');
+          },
+        ),
+        const Divider(),
+
         )
     ],
 ),
