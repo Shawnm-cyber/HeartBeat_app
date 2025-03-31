@@ -73,6 +73,56 @@ final List<FlSpot> weightliftingData = [
   );
 }
 
+void _showAddGoalDialog(BuildContext context) {
+  final goalController = TextEditingController();
+  final progressController = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Add New Goal'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: goalController,
+            decoration: const InputDecoration(labelText: 'Goal Name'),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: progressController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: 'Progress (%)'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            final goalName = goalController.text.trim();
+            final progress = double.tryParse(progressController.text.trim());
+
+            if (goalName.isNotEmpty && progress != null && progress >= 0 && progress <= 100) {
+              // Add the goal here (e.g., update state or save to database)
+              Navigator.pop(context);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please enter a valid goal and progress!')),
+              );
+            }
+          },
+          child: const Text('Add Goal'),
+        ),
+      ],
+    ),
+  );
+}
+
+
 
 
   @override
@@ -199,7 +249,23 @@ final List<FlSpot> weightliftingData = [
                     ),
                     const SizedBox(height: 20),
 
-                    // You can add more widgets or space below if needed
+                    // 'Build a Goal' Button Section
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _showAddGoalDialog(context);
+
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.cyan,
+                          padding: 
+                            const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        child: const Text('Build a Goal'),
+                      )
+                    )
+
                   ],
                 ),
               ),
