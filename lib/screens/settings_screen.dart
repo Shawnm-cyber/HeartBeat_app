@@ -3,6 +3,14 @@ import 'package:flutter/material.dart';
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
+   @override
+  _SettingsScreenState createState() =>
+      _SettingScreenState();
+}
+
+  class _SettingsScreenState extends State<SettingsScreen> {
+  int selectedIndex = 0; // Track selected index for bottom navigation
+
   @override
   Widget build(BuildContext context) {
     const backgroundColor = const Color.fromARGB(0, 228, 236, 231);
@@ -96,3 +104,29 @@ class SettingsScreen extends StatelessWidget {
       ),
     ],
 ),
+// Bottom Navigation Bar with labels only
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: selectedIndex,
+        onTap: (index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
+        items: [
+          const BottomNavigationBarItem(
+            label: 'Work Log', icon: SizedBox.shrink(), // Label for Work Log
+          ),
+          BottomNavigationBarItem(
+            label: 'CalTrack', icon: SizedBox.shrink(), // Label for CalTrack
+          ),
+          const BottomNavigationBarItem(
+            label: 'ProTrack', icon: SizedBox.shrink(), // Label for Progress Tracker
+          ),
+          const BottomNavigationBarItem(
+            label: 'Settings', icon: Icon(Icons.settings), // Label for Settings
+          ),
+        ],
+      ),
+    );
+  }
+}
