@@ -6,8 +6,16 @@ import 'screens/calorie_tracker_screen.dart';
 import 'screens/progress_tracking_screen.dart';
 import 'screens/preset_routines_screen.dart';
 import 'screens/settings_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'models/meal.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(MealAdapter());
+  await Hive.openBox<Meal>('mealsBox');
+
   runApp(const HeartBeatApp());
 }
 
