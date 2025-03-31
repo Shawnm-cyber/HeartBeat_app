@@ -1,225 +1,117 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import '../models/meal.dart';
 
-class CalorieTrackerScreen extends StatelessWidget {
+class CalorieTrackerScreen extends StatefulWidget {
   const CalorieTrackerScreen({Key? key}) : super(key: key);
 
   @override
+  State<CalorieTrackerScreen> createState() => _CalorieTrackerScreenState();
+}
+
+class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
+  final _foodController = TextEditingController();
+  final _calorieController = TextEditingController();
+  final _mealTypeController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+  late Box<Meal> mealsBox;
+
+  @override
+  void initState() {
+    super.initState();
+    mealsBox = Hive.box<Meal>('mealsBox');
+  }
+
+  void _addMeal() {
+    if (_formKey.currentState!.validate()) {
+      final newMeal = Meal(
+        mealType: _mealTypeController.text.trim(),
+        foodName: _foodController.text.trim(),
+        calories: int.parse(_calorieController.text),
+        time: DateTime.now(),
+      );
+
+      mealsBox.add(newMeal);
+
+      _foodController.clear();
+      _calorieController.clear();
+      _mealTypeController.clear();
+
+      setState(() {}); // refresh UI
+    }
+  }
+
+  @override
+  void dispose() {
+    _foodController.dispose();
+    _calorieController.dispose();
+    _mealTypeController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    const backgroundColor = Color(0xFFDCE6D7);
+    final meals = mealsBox.values.toList();
 
     return Scaffold(
-      backgroundColor: backgroundColor,
-      body: SafeArea(
+      appBar: AppBar(title: const Text('Calorie Tracker')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top bar
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Form(
+              key: _formKey,
+              child: Column(
                 children: [
-                  const Icon(Icons.home),
-                  const Text(
-                    'HeartBeat',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  TextFormField(
+                    controller: _mealTypeController,
+                    decoration: const InputDecoration(labelText: 'Meal Type'),
+                    validator: (value) => value!.isEmpty ? 'Required' : null,
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      // Handle Add Workout
-                    },
-                    child: const Column(
-                      children: [
-                        Icon(Icons.add, size: 20),
-                        Text(
-                          'Add\nWorkout',
-                          textAlign: TextAlign.right,
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
+                  TextFormField(
+                    controller: _foodController,
+                    decoration: const InputDecoration(labelText: 'Food Name'),
+                    validator: (value) => value!.isEmpty ? 'Required' : null,
+                  ),
+                  TextFormField(
+                    controller: _calorieController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Calories'),
+                    validator: (value) =>
+                        value!.isEmpty || int.tryParse(value) == null
+                            ? 'Enter a valid number'
+                            : null,
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: _addMeal,
+                    child: const Text('Add Meal'),
                   ),
                 ],
               ),
             ),
 
-            // "Today" Header
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Today',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            const SizedBox(height: 24),
+            const Divider(),
+
+            // List of meals
+            Expanded(
+              child: ListView.builder(
+                itemCount: meals.length,
+                itemBuilder: (context, index) {
+                  final meal = meals[index];
+                  return ListTile(
+                    title: Text('${meal.foodName} - ${meal.calories} cal'),
+                    subtitle: Text(
+                        '${meal.mealType} - ${meal.time.hour}:${meal.time.minute}'),
+                  );
+                },
               ),
             ),
-            const SizedBox(height: 16),
-
-            // Calorie Summary
-            // onInit():
-            // fetch today's meals from storage
-            // calculate macros (carbs, protein, fats) from meals
-            // update UI
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: const [
-                _CalorieStat(label: 'Eaten', value: '1268'),
-                _CalorieStat(label: 'Remaining', value: '830', highlight: true),
-                _CalorieStat(label: 'Burned', value: '302'),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            // Macronutrients
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  _MacroStat(label: 'Carbs', current: 234, goal: 275),
-                  _MacroStat(label: 'Protein', current: 32, goal: 155),
-                  _MacroStat(label: 'Fats', current: 27, goal: 54),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Meals
-            const _MealEntry(meal: 'Breakfast', current: 45, goal: 150),
-            const _MealEntry(meal: 'Lunch', current: 830, goal: 850),
-            const _MealEntry(meal: 'Dinner', current: 350, goal: 380),
-            const _MealEntry(meal: 'Snack', current: 0, goal: 150),
           ],
         ),
       ),
-
-      // Bottom Navigation Bar
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1, // Cal Track is index 1
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              Navigator.pushNamed(context, '/workoutLog');
-              break;
-            case 1:
-              break; // Already on Cal Track
-            case 2:
-              Navigator.pushNamed(context, '/progressTracking');
-              break;
-            case 3:
-              Navigator.pushNamed(context, '/settings');
-              break;
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.black,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.fitness_center),
-            label: 'Work Log',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant),
-            label: 'Cal Track',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.trending_up),
-            label: 'ProTrack',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: ''),
-        ],
-      ),
-    );
-  }
-}
-
-class _CalorieStat extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool highlight;
-
-  const _CalorieStat({
-    required this.label,
-    required this.value,
-    this.highlight = false,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: highlight ? Colors.deepPurple : Colors.black,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(label),
-      ],
-    );
-  }
-}
-
-class _MacroStat extends StatelessWidget {
-  final String label;
-  final int current;
-  final int goal;
-
-  const _MacroStat({
-    required this.label,
-    required this.current,
-    required this.goal,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          '$current / $goal g',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Text(label),
-      ],
-    );
-  }
-}
-//  onAddMeal(mealType, calories, macros):
-// validate input
-//save meal to local storage
-//   recalculate daily totals
-//   update UI
-
-class _MealEntry extends StatelessWidget {
-  final String meal;
-  final int current;
-  final int goal;
-
-  const _MealEntry({
-    required this.meal,
-    required this.current,
-    required this.goal,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.add, color: Colors.blue),
-      title: Text(meal, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text('$current / $goal Cal'),
-      onTap: () {
-        // Add food dialog or navigation
-      },
     );
   }
 }
