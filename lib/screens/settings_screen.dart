@@ -68,6 +68,29 @@ class SettingsScreen extends StatelessWidget {
           },
         ),
         const Divider(),
+
+        // Accessibility Section
+          _buildSettingsItem(
+            icon: Icons.accessibility,
+            title: 'Accessibility',
+            onTap: () {
+              // Navigate to accessibility settings
+              Navigator.pushNamed(context, '/accessibility');
+            },
+          ),
+          const Divider(),
+
+          // Help Section
+          _buildSettingsItem(
+            icon: Icons.help_outline,
+            title: 'Help',
+            onTap: () {
+              // Navigate to help screen
+              Navigator.pushNamed(context, '/help');
+            },
+          ),
+        ],
+      ),
         
         ),
       ),
