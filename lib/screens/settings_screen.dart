@@ -130,3 +130,18 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 }
+
+// Helper method to build a single settings item
+Widget _buildSettingsItem({
+  required IconData icon,
+  required String title,
+  required VoidCallback onTap,
+}) {
+  return ListTile(
+    leading: Icon(icon),
+    title: Text(title),
+    trailing: const Icon(Icons.arrow_forward_ios),
+    onTap: onTap,
+  );
+}
+}
