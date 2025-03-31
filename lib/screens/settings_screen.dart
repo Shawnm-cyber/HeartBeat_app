@@ -23,5 +23,19 @@ class SettingsScreen extends StatelessWidget {
               Navigator.pushNamed(context, ' /userSettings');
            },
         ),
+        const Divider(),
+
+        // Health Details Section
+        _buildSettingsItem(
+          icon: Icons.favorite_border,
+          title: 'Health Details',
+          onTap() {
+            // Will navigate to health details settings
+            Navigator.pushNamed(context, ' /healthDetails');
+          },
+        ),
+        const Divider(),
+        
+        )
     ],
 ),
