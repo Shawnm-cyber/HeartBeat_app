@@ -15,6 +15,7 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(MealAdapter());
   await Hive.openBox<Meal>('mealsBox');
+  await Hive.openBox('settingsBox');
 
   runApp(const HeartBeatApp());
 }

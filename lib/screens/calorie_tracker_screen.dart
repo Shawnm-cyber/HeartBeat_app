@@ -16,11 +16,15 @@ class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
 
   final _formKey = GlobalKey<FormState>();
   late Box<Meal> mealsBox;
+  late Box settingsBox;
+  int _calorieGoal = 2000;
 
   @override
   void initState() {
     super.initState();
     mealsBox = Hive.box<Meal>('mealsBox');
+    settingsBox = Hive.box('settingsBox');
+    _calorieGoal = settingsBox.get('calorieGoal', defaultValue: 2000);
   }
 
   void _addMeal() {
@@ -38,8 +42,15 @@ class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
       _calorieController.clear();
       _mealTypeController.clear();
 
-      setState(() {}); // refresh UI
+      setState(() {});
     }
+  }
+
+  void _updateGoal(int goal) {
+    settingsBox.put('calorieGoal', goal);
+    setState(() {
+      _calorieGoal = goal;
+    });
   }
 
   @override
@@ -53,6 +64,16 @@ class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
   @override
   Widget build(BuildContext context) {
     final meals = mealsBox.values.toList();
+    final todayMeals = meals
+        .where((m) =>
+            m.time.day == DateTime.now().day &&
+            m.time.month == DateTime.now().month &&
+            m.time.year == DateTime.now().year)
+        .toList();
+
+    final int totalEaten = todayMeals.fold(0, (sum, m) => sum + m.calories);
+    final int burned = 300;
+    final int remaining = _calorieGoal - totalEaten;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Calorie Tracker')),
@@ -60,6 +81,58 @@ class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            Card(
+              margin: const EdgeInsets.symmetric(vertical: 16),
+              color: Colors.green[100],
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Text('Calorie Goal: $_calorieGoal kcal'),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _summaryCard('Eaten', totalEaten),
+                        _summaryCard('Remaining', remaining),
+                        _summaryCard('Burned', burned),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final controller = TextEditingController();
+                        final goal = await showDialog<int>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Set Calorie Goal'),
+                            content: TextField(
+                              controller: controller,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                  hintText: 'Enter goal (e.g., 2000)'),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  final val = int.tryParse(controller.text);
+                                  Navigator.pop(context, val);
+                                },
+                                child: const Text('Save'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (goal != null && goal > 0) {
+                          _updateGoal(goal);
+                        }
+                      },
+                      child: const Text('Set Goal'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             Form(
               key: _formKey,
               child: Column(
@@ -91,16 +164,13 @@ class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 24),
             const Divider(),
-
-            // List of meals
             Expanded(
               child: ListView.builder(
-                itemCount: meals.length,
+                itemCount: todayMeals.length,
                 itemBuilder: (context, index) {
-                  final meal = meals[index];
+                  final meal = todayMeals[index];
                   return ListTile(
                     title: Text('${meal.foodName} - ${meal.calories} cal'),
                     subtitle: Text(
@@ -112,6 +182,18 @@ class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _summaryCard(String label, int value) {
+    return Column(
+      children: [
+        Text(
+          '$value',
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Text(label),
+      ],
     );
   }
 }
