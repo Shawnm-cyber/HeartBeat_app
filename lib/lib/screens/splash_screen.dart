@@ -22,14 +22,27 @@ class _SplashScreenState extends State<SplashScreen> {
     final prefys = await SharedPreferences.getInstance();
     final savedName = prefys.getString('user_name');
     if (savedName != null && savedName.isNotEmpty) {
-      // If name exists, navigate to home screen after a short delay
+      // If name exists, navigate to home dashboard after a short delay
       Future.delayed(const Duration(seconds: 3), () {
         Navigator.pushReplacementNamed(context, '/home');
       });
     }
   }
 
-  
+  // Save the user's name and thereafter navigate to the home dashboard
+  Future<void> _saveNameAndContinue() async {
+    final name = _nameController.text.trim();
+    if (name.isNotEmpty) {
+      final prefys = await SharedPreferences.getInstance();
+      await prefys.setString('user_name', name);
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      // Show error if the name field is empty
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text ('Please enter your name')),
+      );
+    }
+  }
   void _goToHomeDashboard() {
     final userName = _nameController.text.trim();
     // TODO: Store userName somewhere or pass it forward if needed.
