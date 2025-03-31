@@ -14,6 +14,14 @@ class SettingsScreen extends StatelessWidget {
           title: const Text ('Settings'),
         ),
         body: ListView(
-        );
-      }
-    } 
+          children: [
+          // User Profile Section
+          _buildSettingsItem(
+            icon:Icons.person,
+            title:'User',
+            onTap() {
+              Navigator.pushNamed(context, ' /userSettings');
+           },
+        ),
+    ],
+),
