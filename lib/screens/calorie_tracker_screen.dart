@@ -72,7 +72,7 @@ class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
         .toList();
 
     final int totalEaten = todayMeals.fold(0, (sum, m) => sum + m.calories);
-    final int burned = 300;
+    final int burned = 300; // Example fixed value
     final int remaining = _calorieGoal - totalEaten;
 
     return Scaffold(
@@ -81,6 +81,7 @@ class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // Calorie Summary Card
             Card(
               margin: const EdgeInsets.symmetric(vertical: 16),
               color: Colors.green[100],
@@ -133,6 +134,7 @@ class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
                 ),
               ),
             ),
+            // Form to add a new meal
             Form(
               key: _formKey,
               child: Column(
@@ -166,6 +168,7 @@ class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
             ),
             const SizedBox(height: 24),
             const Divider(),
+            // List of today's meals
             Expanded(
               child: ListView.builder(
                 itemCount: todayMeals.length,
@@ -181,6 +184,47 @@ class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
             ),
           ],
         ),
+      ),
+      // Bottom Navigation Bar
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 1, // Cal Track is index 1
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              Navigator.pushNamed(context, '/workoutLog');
+              break;
+            case 1:
+              // Already on Cal Track
+              break;
+            case 2:
+              Navigator.pushNamed(context, '/progressTracking');
+              break;
+            case 3:
+              Navigator.pushNamed(context, '/settings');
+              break;
+          }
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.black,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.fitness_center),
+            label: 'Work Log',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.restaurant),
+            label: 'Cal Track',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.trending_up),
+            label: 'ProTrack',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: '',
+          ),
+        ],
       ),
     );
   }

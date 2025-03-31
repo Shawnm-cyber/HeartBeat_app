@@ -1,197 +1,295 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import '../models/routine.dart';
 
-class PresetRoutinesScreen extends StatelessWidget {
+class PresetRoutinesScreen extends StatefulWidget {
   const PresetRoutinesScreen({Key? key}) : super(key: key);
 
   @override
+  State<PresetRoutinesScreen> createState() => _PresetRoutinesScreenState();
+}
+
+class _PresetRoutinesScreenState extends State<PresetRoutinesScreen> {
+  late Box<Routine> routinesBox;
+
+  @override
+  void initState() {
+    super.initState();
+    routinesBox = Hive.box<Routine>('routinesBox');
+  }
+
+  // Routine CRUD operations
+
+  // Add a new routine
+  void _addRoutine(String name, String difficulty) {
+    final newRoutine = Routine(name: name, difficulty: difficulty, sets: []);
+    routinesBox.add(newRoutine);
+    setState(() {});
+  }
+
+  // Edit an existing routine
+  void _editRoutine(Routine routine, String newName, String newDifficulty) {
+    routine.name = newName;
+    routine.difficulty = newDifficulty;
+    routine.save();
+    setState(() {});
+  }
+
+  // Delete a routine
+  void _deleteRoutine(Routine routine) {
+    routine.delete();
+    setState(() {});
+  }
+
+  // Routine Set Operations
+
+  // Add a new set to an existing routine
+  void _addSetToRoutine(Routine routine, RoutineSet newSet) {
+    routine.sets.add(newSet);
+    routine.save();
+    setState(() {});
+  }
+
+  // Toggle the completion status of a set
+  void _toggleSetCompletion(Routine routine, int setIndex) {
+    routine.sets[setIndex].isCompleted = !routine.sets[setIndex].isCompleted;
+    routine.save();
+    setState(() {});
+  }
+
+  // Delete a set from a routine
+  void _deleteSetFromRoutine(Routine routine, int setIndex) {
+    routine.sets.removeAt(setIndex);
+    routine.save();
+    setState(() {});
+  }
+
+  // --- Dialogs for Adding/Editing ---
+
+  // Dialog to add a new routine
+  Future<void> _showAddRoutineDialog() async {
+    final nameController = TextEditingController();
+    final difficultyController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add New Routine'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Routine Name'),
+            ),
+            TextField(
+              controller: difficultyController,
+              decoration: const InputDecoration(
+                  labelText: 'Difficulty (e.g., Beginner)'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              final name = nameController.text.trim();
+              final difficulty = difficultyController.text.trim();
+              if (name.isNotEmpty && difficulty.isNotEmpty) {
+                _addRoutine(name, difficulty);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Dialog to edit an existing routine
+  Future<void> _showEditRoutineDialog(Routine routine) async {
+    final nameController = TextEditingController(text: routine.name);
+    final difficultyController =
+        TextEditingController(text: routine.difficulty);
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Routine'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Routine Name'),
+            ),
+            TextField(
+              controller: difficultyController,
+              decoration: const InputDecoration(labelText: 'Difficulty'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              final newName = nameController.text.trim();
+              final newDifficulty = difficultyController.text.trim();
+              if (newName.isNotEmpty && newDifficulty.isNotEmpty) {
+                _editRoutine(routine, newName, newDifficulty);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Dialog to add a new set to a routine
+  Future<void> _showAddSetDialog(Routine routine) async {
+    final iconController = TextEditingController();
+    final weightController = TextEditingController();
+    final repsController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Set'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: iconController,
+              decoration: const InputDecoration(
+                  labelText: 'Icon Name (e.g., directions_walk)'),
+            ),
+            TextField(
+              controller: weightController,
+              decoration:
+                  const InputDecoration(labelText: 'Weight (e.g., 20 kg)'),
+            ),
+            TextField(
+              controller: repsController,
+              decoration:
+                  const InputDecoration(labelText: 'Reps (e.g., 10 reps)'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              final iconName = iconController.text.trim();
+              final weight = weightController.text.trim();
+              final reps = repsController.text.trim();
+              if (iconName.isNotEmpty && weight.isNotEmpty && reps.isNotEmpty) {
+                final newSet = RoutineSet(
+                  iconName: iconName,
+                  weight: weight,
+                  reps: reps,
+                  isCompleted: false,
+                );
+                _addSetToRoutine(routine, newSet);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Add Set'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    const backgroundColor = Color(0xFFDCE6D7);
-
+    final routines = routinesBox.values.toList();
     return Scaffold(
-      backgroundColor: backgroundColor,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Top bar
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Icon(Icons.home),
-                    Text(
-                      'HeartBeat',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+      appBar: AppBar(
+        title: const Text('Preset Routines'),
+      ),
+      body: ListView.builder(
+        itemCount: routines.length,
+        itemBuilder: (context, index) {
+          final routine = routines[index];
+          return Card(
+            margin: const EdgeInsets.all(8),
+            child: ExpansionTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('${routine.name} (${routine.difficulty})'),
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        _showEditRoutineDialog(routine);
+                      } else if (value == 'delete') {
+                        _deleteRoutine(routine);
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Text('Edit Routine'),
                       ),
-                    ),
-                    Column(
-                      children: [
-                        Icon(Icons.add, size: 20),
-                        Text(
-                          'Add\nWorkout',
-                          textAlign: TextAlign.right,
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // Running animation or image
-              SizedBox(
-                height: 80,
-                child: Image.network(
-                  'https://cdn-icons-png.flaticon.com/512/860/860733.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-              // onInit():
-              // fetch routines from database
-              //   display by difficulty (Beginner / Intermediate / Advanced)
-
-              // Chart and remaining calories
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Chart placeholder
-                    Expanded(
-                      flex: 2,
-                      child: Container(
-                        height: 160,
-                        decoration: BoxDecoration(
-                          color: Colors.black87,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'Chart Placeholder',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Text('Delete Routine'),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    // Remaining tracker
-                    Expanded(
-                      flex: 1,
-                      child: Column(
+                    ],
+                  ),
+                ],
+              ),
+              children: [
+                // Display each set for the routine.
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: routine.sets.length,
+                  itemBuilder: (context, setIndex) {
+                    final setItem = routine.sets[setIndex];
+                    return ListTile(
+                      leading: Icon(Icons.fitness_center),
+                      title: Text('${setItem.weight} - ${setItem.reps}'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              SizedBox(
-                                height: 120,
-                                width: 120,
-                                child: CircularProgressIndicator(
-                                  value: 0.7,
-                                  strokeWidth: 6,
-                                  backgroundColor: Colors.brown[100],
-                                  color: Colors.brown,
-                                ),
-                              ),
-                              const Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    '830',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text('Remaining'),
-                                ],
-                              ),
-                            ],
+                          IconButton(
+                            icon: Icon(
+                              setItem.isCompleted
+                                  ? Icons.check_box
+                                  : Icons.check_box_outline_blank,
+                              color: setItem.isCompleted ? Colors.green : null,
+                            ),
+                            onPressed: () =>
+                                _toggleSetCompletion(routine, setIndex),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () =>
+                                _deleteSetFromRoutine(routine, setIndex),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              ),
-
-              const SizedBox(height: 24),
-              // onSelectRoutine(routineId):
-
-              // if user progress < required:
-              // show warning
-              // else:
-              // navigate to Routine Detail Screen
-              // onMarkSetComplete(setId):
-              //   update routine progress in local database
-
-              // Preset Routine section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.add, color: Colors.red),
-                        SizedBox(width: 8),
-                        Text(
-                          'Warm-up',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Preset sets
-                    _WorkoutRow(
-                      icon: Icons.directions_walk,
-                      weight: '20 kg',
-                      reps: '10 reps',
-                    ),
-                    _WorkoutRow(
-                      icon: Icons.directions_walk,
-                      weight: '60 kg',
-                      reps: '8 reps',
-                    ),
-                    _WorkoutRow(
-                      icon: Icons.looks_one,
-                      weight: '80 kg',
-                      reps: '5 reps',
-                    ),
-                    _WorkoutRow(
-                      icon: Icons.looks_two,
-                      weight: '100 kg',
-                      reps: '5 reps',
-                    ),
-                    _WorkoutRow(
-                      icon: Icons.looks_3,
-                      weight: '100 kg',
-                      reps: '5 reps',
-                    ),
-                  ],
+                // Button to add a new set.
+                TextButton(
+                  onPressed: () => _showAddSetDialog(routine),
+                  child: const Text('Add Set'),
                 ),
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        ),
+              ],
+            ),
+          );
+        },
       ),
-
-      // Bottom navigation
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddRoutineDialog,
+        child: const Icon(Icons.add),
+      ),
+      // --- Bottom Navigation Bar ---
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
+        currentIndex: 0, // Adjust the active index as needed
         onTap: (index) {
           switch (index) {
             case 0:
@@ -224,35 +322,11 @@ class PresetRoutinesScreen extends StatelessWidget {
             icon: Icon(Icons.trending_up),
             label: 'ProTrack',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: ''),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: '',
+          ),
         ],
-      ),
-    );
-  }
-}
-
-class _WorkoutRow extends StatelessWidget {
-  final IconData icon;
-  final String weight;
-  final String reps;
-
-  const _WorkoutRow({
-    required this.icon,
-    required this.weight,
-    required this.reps,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        leading: Icon(icon),
-        title: Text(weight),
-        subtitle: Text(reps),
-        trailing: const Icon(Icons.more_vert),
-        onTap: () {},
       ),
     );
   }

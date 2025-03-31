@@ -9,13 +9,17 @@ import 'screens/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'models/meal.dart';
+import 'models/routine.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(MealAdapter());
+  Hive.registerAdapter(RoutineAdapter());
+  Hive.registerAdapter(RoutineSetAdapter());
   await Hive.openBox<Meal>('mealsBox');
   await Hive.openBox('settingsBox');
+  await Hive.openBox<Routine>('routinesBox');
 
   runApp(const HeartBeatApp());
 }
