@@ -157,4 +157,26 @@ class HomeDashboardScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            )
+            // Upcoming Features Section
+            const Text(
+              'Upcoming Features',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Container(
+              height: 100,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              child: const Center(
+                child: Text(
+                  'Stay tuned for further updates!',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
