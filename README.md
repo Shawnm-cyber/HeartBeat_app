@@ -8,6 +8,9 @@ How to Run Locally:
 - Android Studio or VS Code with Flutter plugins
 - Git
 
+Vinh Le and Shawn
+
+Spring 2025 – CSc4360
 ```bash
 git clone https://github.com/your-username/heartbeat_app.git
 cd heartbeat_app
