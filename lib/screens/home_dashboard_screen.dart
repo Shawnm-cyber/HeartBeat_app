@@ -58,10 +58,52 @@ class HomeDashboardScreen extends StatelessWidget {
                   ],
                   titlesData: 
                   FlTitlesData(showTitles:false),
-                 )
-              )
+                 ),
               ),
-          )
+              ),
+          ),
+              const SizedBox(height: 20)
+              
+              //Health Detials Section with Line Chart Visualization
+              const Text(
+                'Health Details',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: LineChart(
+                    LineChartData(
+                      gridData: FlGridData(show: false),
+                      titlesData: FlTitlesData(show: false),
+                      borderData: FlBorderData(show: false),
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: [
+                            FlSpot(0, 70), // Day 1
+                          FlSpot(1, 72), // Day 2
+                          FlSpot(2, 74), // Day 3
+                          FlSpot(3, 71), // Day 4
+                          FlSpot(4, 73), // Day 5
+                          ],
+                          isCurved: true,
+                          colors: [Colors.red],
+                          barWidth: 4,
+                          belowBarData: 
+                              BarAreaData(show:false), // Makes sure no shaded area below the line
+                        )
+                      ]
+                     )
+                  )
+                  ),
+              )
 
         ],
       )
