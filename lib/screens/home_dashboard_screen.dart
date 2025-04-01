@@ -102,7 +102,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                           FlSpot(4, 73),
                         ],
                         isCurved: true,
-                        colors: [Colors.red],
+                        color: Colors.red,
                         barWidth: 4,
                         belowBarData: BarAreaData(show: false),
                       ),
