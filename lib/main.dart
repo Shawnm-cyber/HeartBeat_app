@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/welcome_screen.dart';
+import 'screens/splash_screen.dart';
 import 'screens/home_dashboard_screen.dart';
 import 'screens/workout_log_screen.dart';
 import 'screens/calorie_tracker_screen.dart';
@@ -37,11 +37,11 @@ class HeartBeatApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.blue),
       initialRoute: '/welcome',
       routes: {
-        '/welcome': (context) => const WelcomeScreen(),
+        '/welcome': (context) => const SplashScreen(),
         '/home': (context) => const HomeDashboardScreen(),
         '/workoutLog': (context) => const WorkoutLogScreen(),
         '/calorieTracker': (context) => const CalorieTrackerScreen(),
-        '/progressTracking': (context) => const ProgressTrackingScreen(),
+        '/progressTracking': (context) => ProgressTrackingScreen(),
         '/presetRoutines': (context) => const PresetRoutinesScreen(),
         '/settings': (context) => const SettingsScreen(),
       },
