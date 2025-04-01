@@ -11,6 +11,8 @@ How to Run Locally:
 Vinh Le and Shawn
 
 Spring 2025 – CSc4360
+
+youtube presentation - https://youtu.be/9ngpI4SRhBE
 ```bash
 git clone https://github.com/your-username/heartbeat_app.git
 cd heartbeat_app
@@ -21,4 +23,4 @@ flutter run
 
 
 
-youtube presentation - https://youtu.be/9ngpI4SRhBE
+
