@@ -5,6 +5,14 @@ class HomeDashboardScreen extends StatelessWidget {
   const HomeDashboardScreen({Key? key}) : super(key: key);
 
   @override
+  _HomeDashboardScreenState createState() => _HomeDashboardScreenState();
+}
+
+class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
+  int selectedIndex = 0; // Track selected index for bottom navigation
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Home Dashboard')),
@@ -180,3 +188,29 @@ class HomeDashboardScreen extends StatelessWidget {
           ],
         ),
       ),
+      // Bottom Navigation Bar with labels only
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: selectedIndex,
+        onTap: (index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
+        items: [
+          const BottomNavigationBarItem(
+            label: 'Work Log', icon: SizedBox.shrink(), // Label for Work Log
+          ),
+          BottomNavigationBarItem(
+            label: 'CalTrack', icon: SizedBox.shrink(), // Label for CalTrack
+          ),
+          const BottomNavigationBarItem(
+            label: 'ProTrack', icon: SizedBox.shrink(), // Label for Progress Tracker
+          ),
+          const BottomNavigationBarItem(
+            label: 'Settings', icon: Icon(Icons.settings), // Label for Settings
+          ),
+        ],
+      ),
+    );
+  }
+}
