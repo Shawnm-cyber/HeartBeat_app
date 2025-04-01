@@ -1,38 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:hive/hive.dart';
+import '../models/goal.dart';
 
 class ProgressTrackingScreen extends StatefulWidget {
-  ProgressTrackingScreen({super.key});
+  const ProgressTrackingScreen({Key? key}) : super(key: key);
 
   @override
-  _ProgressTrackingScreenState createState() =>
-      _ProgressTrackingScreenState();
+  State<ProgressTrackingScreen> createState() => _ProgressTrackingScreenState();
 }
 
 class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
-  int selectedIndex = 0; // Track selected index for bottom navigation
+  //  assume "Progress Tracking" is the 2nd index in bottom navigation
+  int selectedIndex = 2;
+  late Box<Goal> goalsBox;
 
-  // Method to create a legend item
-  Widget _buildLegendItem(Color color, String label) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 8), // Space between circle and label
-        Text(
-          label,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-        ),
-      ],
-    );
-  }
-
+  // Example line chart data
   final List<FlSpot> weightliftingData = [
     FlSpot(0, 100),
     FlSpot(1, 105),
@@ -42,65 +25,64 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
     FlSpot(5, 125),
   ];
   final List<FlSpot> runningDistanceData = [
-    FlSpot(0, 2.0),
+    FlSpot(0, 2),
     FlSpot(1, 2.4),
     FlSpot(2, 2.8),
     FlSpot(3, 3.2),
     FlSpot(4, 3.6),
-    FlSpot(5, 3.8),
+    FlSpot(5, 4.0),
   ];
   final List<FlSpot> caloriesBurnedData = [
     FlSpot(0, 250),
-    FlSpot(1, 350),
+    FlSpot(1, 300),
     FlSpot(2, 150),
-    FlSpot(3, 200),
-    FlSpot(4, 300),
+    FlSpot(3, 350),
+    FlSpot(4, 375),
     FlSpot(5, 400),
   ];
 
-  Widget _buildGoalColumn(String progress, String goalText) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+  @override
+  void initState() {
+    super.initState();
+    // Retrieve the typed Hive box we opened in main.dart
+    goalsBox = Hive.box<Goal>('goalsBox');
+  }
+
+  /// For the legend row
+  Widget _buildLegendItem(Color color, String label) {
+    return Row(
       children: [
-        // Show the progress percentage
-        Text(
-          progress,
-          style: const TextStyle(
-            fontSize: 24, // Make it stand out
-            fontWeight: FontWeight.bold,
-          ),
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(height: 8), // Add some breathing room
-        // Show goal description
-        Text(
-          goalText,
-          textAlign: TextAlign.center, // Center-align for neatness and
-          style: const TextStyle(fontSize: 16), // Smaller but clear
-        ),
+        const SizedBox(width: 6),
+        Text(label),
       ],
     );
   }
 
-  void _showAddGoalDialog(BuildContext context) {
-    final goalController = TextEditingController();
+  /// Adding a new goal through a dialog
+  void _showAddGoalDialog() {
+    final nameController = TextEditingController();
     final progressController = TextEditingController();
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add New Goal'),
+      builder: (ctx) => AlertDialog(
+        title: const Text('Add a Goal'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              controller: goalController,
+              controller: nameController,
               decoration: const InputDecoration(labelText: 'Goal Name'),
             ),
-            const SizedBox(height: 10),
             TextField(
               controller: progressController,
+              decoration: const InputDecoration(labelText: 'Progress (0-100)'),
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Progress (%)'),
             ),
           ],
         ),
@@ -111,141 +93,183 @@ class _ProgressTrackingScreenState extends State<ProgressTrackingScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              final goalName = goalController.text.trim();
-              final progress = double.tryParse(progressController.text.trim());
-
-              if (goalName.isNotEmpty && progress != null && progress >= 0 && progress <= 100) {
-                // Add the goal here
+              final goalName = nameController.text.trim();
+              final prog = double.tryParse(progressController.text.trim());
+              if (goalName.isNotEmpty &&
+                  prog != null &&
+                  prog >= 0 &&
+                  prog <= 100) {
+                final newGoal = Goal(name: goalName, progress: prog);
+                goalsBox.add(newGoal);
+                setState(() {});
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Goal Added!')),
+                );
                 Navigator.pop(context);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a valid goal and progress!')),
+                  const SnackBar(
+                      content: Text('Enter a valid goal name and progress')),
                 );
               }
             },
-            child: const Text('Add Goal'),
+            child: const Text('Add'),
           ),
         ],
       ),
     );
   }
 
+  Widget _buildGoalList() {
+    // Gather all goals from the box
+    final allGoals = goalsBox.values.toList();
+    if (allGoals.isEmpty) {
+      return const Text('No goals added yet.');
+    }
+    return Column(
+      children: allGoals.map((g) {
+        return ListTile(
+          title: Text('${g.name}'),
+          subtitle: Text('Progress: ${g.progress}%'),
+        );
+      }).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    const backgroundColor = Color.fromARGB(0, 228, 236, 231);
+    const backgroundColor = Color(0xFFE4ECE7);
 
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
+        title: const Text('Progress Tracker'),
         leading: IconButton(
           icon: const Icon(Icons.home),
           onPressed: () {
             Navigator.pushReplacementNamed(context, '/home');
           },
         ),
-        title: const Text('HeartBeat'),
         actions: [
           IconButton(
+            onPressed: _showAddGoalDialog,
             icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.pushNamed(context, '/addGoal');
-            },
           ),
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Progression',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                _buildLegendItem(Colors.amber, 'Weightlifting'),
-                const SizedBox(width: 16),
-                _buildLegendItem(Colors.lime, 'Running Distance'),
-                const SizedBox(width: 16),
-                _buildLegendItem(Colors.pink, 'Calories Burned'),
-              ],
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 300,
-              width: double.infinity,
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(show: true),
-                  titlesData: FlTitlesData(
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Overall Progress',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+
+              // Legend
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildLegendItem(Colors.blue, 'Weight'),
+                  _buildLegendItem(Colors.green, 'Distance'),
+                  _buildLegendItem(Colors.red, 'Calories'),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Chart
+              SizedBox(
+                height: 300,
+                width: double.infinity,
+                child: LineChart(
+                  LineChartData(
+                    gridData: FlGridData(show: true),
+                    titlesData: FlTitlesData(
+                      leftTitles: AxisTitles(
+                        sideTitles:
+                            SideTitles(showTitles: true, reservedSize: 40),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles:
+                            SideTitles(showTitles: true, reservedSize: 32),
+                      ),
                     ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: true, reservedSize: 30),
-                    ),
+                    borderData: FlBorderData(show: false),
+                    lineBarsData: [
+                      LineChartBarData(
+                        spots: weightliftingData,
+                        color: Colors.blue,
+                        isCurved: true,
+                        barWidth: 3,
+                        belowBarData: BarAreaData(show: false),
+                      ),
+                      LineChartBarData(
+                        spots: runningDistanceData,
+                        color: Colors.green,
+                        isCurved: true,
+                        barWidth: 3,
+                        belowBarData: BarAreaData(show: false),
+                      ),
+                      LineChartBarData(
+                        spots: caloriesBurnedData,
+                        color: Colors.red,
+                        isCurved: true,
+                        barWidth: 3,
+                        belowBarData: BarAreaData(show: false),
+                      ),
+                    ],
                   ),
-                  borderData: FlBorderData(show: true),
                 ),
               ),
-            ),
-            const Text(
-              'My Goals',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildGoalColumn('30%', 'Bench\nPress'),
-                _buildGoalColumn('70%', 'Squat\n225lbs'),
-                _buildGoalColumn('80%', 'Dead Lift\n235lbs'),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'You are stronger version of yourself!',
-              style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic, color: Colors.black87),
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  _showAddGoalDialog(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.cyan,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                child: const Text('Build a Goal'),
+
+              const SizedBox(height: 24),
+              const Text(
+                'My Goals',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              _buildGoalList(),
+            ],
+          ),
         ),
       ),
-      // Bottom Navigation Bar with labels only
+
+      // Bottom Nav
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
-        onTap: (index) {
+        onTap: (i) {
           setState(() {
-            selectedIndex = index;
+            selectedIndex = i;
           });
+          if (i == 0) {
+            Navigator.pushReplacementNamed(context, '/workoutLog');
+          } else if (i == 1) {
+            Navigator.pushReplacementNamed(context, '/calorieTracker');
+          } else if (i == 2) {
+            // Already here
+          } else if (i == 3) {
+            Navigator.pushReplacementNamed(context, '/settings');
+          }
         },
-        items: [
-          const BottomNavigationBarItem(
-            label: 'Work Log', icon: SizedBox.shrink(), // Label for Work Log
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.fitness_center),
+            label: 'Work Log',
           ),
           BottomNavigationBarItem(
-            label: 'CalTrack', icon: SizedBox.shrink(), // Label for CalTrack
+            icon: Icon(Icons.restaurant),
+            label: 'Cal Track',
           ),
-          const BottomNavigationBarItem(
-            label: 'ProTrack', icon: SizedBox.shrink(), // Label for Progress Tracker
+          BottomNavigationBarItem(
+            icon: Icon(Icons.trending_up),
+            label: 'ProTrack',
           ),
-          const BottomNavigationBarItem(
-            label: 'Settings', icon: Icon(Icons.settings), // Label for Settings
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
       ),
