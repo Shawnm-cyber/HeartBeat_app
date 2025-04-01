@@ -62,7 +62,7 @@ class HomeDashboardScreen extends StatelessWidget {
               ),
               ),
           ),
-              const SizedBox(height: 20)
+              const SizedBox(height: 20),
               
               //Health Detials Section with Line Chart Visualization
               const Text(
@@ -98,12 +98,63 @@ class HomeDashboardScreen extends StatelessWidget {
                           barWidth: 4,
                           belowBarData: 
                               BarAreaData(show:false), // Makes sure no shaded area below the line
-                        )
-                      ]
-                     )
-                  )
-                  ),
-              )
+                        ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
 
-        ],
-      )
+            const SizedBox(height: 20),
+
+            // Goals Section with a Circular Progress Indicator Visualization
+            const Text(
+              'Goals',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Container(
+              height: 150,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey[200]
+                borderRadius: BorderRadius.circular(12),
+              ),
+              margin:
+                const EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Goals Succeeded This Month',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 10),
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        height: 80,
+                        width: 80,
+                        child: CircularProgressIndicator(
+                          value: 0.75, // 75% progress
+                          strokeWidth: 8,
+                          color: Colors.green,
+                        ),
+                      ),
+                      const Text(
+                        75%, 
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            )
