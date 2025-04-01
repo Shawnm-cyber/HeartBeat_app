@@ -1,16 +1,21 @@
-# heartbeat_app
+HeartBeat App
 
-A new Flutter project.
+**HeartBeat** is a fitness tracking mobile application built with Flutter. It helps users track workouts, calorie intake, progress goals, and manage preset workout routines. The app emphasizes simplicity, offline support, and a local-first architecture using Hive.
 
-## Getting Started
+How to Run Locally:
+- Flutter SDK: [Install Flutter](https://flutter.dev/docs/get-started/install)
+- Dart SDK (bundled with Flutter)
+- Android Studio or VS Code with Flutter plugins
+- Git
 
-This project is a starting point for a Flutter application.
+```bash
+git clone https://github.com/your-username/heartbeat_app.git
+cd heartbeat_app
 
-A few resources to get you started if this is your first Flutter project:
+flutter pub get
+flutter pub run build_runner build
+flutter run
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+youtube presentation - https://youtu.be/9ngpI4SRhBE
