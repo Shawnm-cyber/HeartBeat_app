@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-class HomeDashboardScreen extends StatelessWidget {
+class HomeDashboardScreen extends StatefulWidget {
   const HomeDashboardScreen({Key? key}) : super(key: key);
 
   @override
@@ -11,109 +11,106 @@ class HomeDashboardScreen extends StatelessWidget {
 class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   int selectedIndex = 0; // Track selected index for bottom navigation
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home Dashboard')),
-      leading: IconButton(
-         icon: const Icon(Icons.menu),
-         onPressed: () {
-          // This will open navigation drawer or meny
-         },
-         ),
-         actions: [
+      backgroundColor: const Color.fromARGB(0, 228, 236, 231),
+      appBar: AppBar(
+        title: const Text('Home Dashboard'),
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            // Open navigation drawer or menu
+          },
+        ),
+        actions: [
           IconButton(
-             icon: const Icon(Icons.notifications_none),
-             onPressed: () {
+            icon: const Icon(Icons.notifications_none),
+            onPressed: () {
               // Handle notifications
-             },
-             ),
-         ],
-    ),
-    body:SingelChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      chold: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          // Work Log Section with Bar Chart Visualization
-          const Text(
-            'Work Log',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            },
           ),
-          Container(
-            height: 200,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color:Colors.grey[200],
-              borderRadius: BorderRadius.circular(12),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            // Work Log Section with Bar Chart Visualization
+            const Text(
+              'Work Log',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: BarChart(
-                BarChartData(
-                  barGroups: [
-                    BarChartGroupData(x: 0, barRods: [
-                      BarChartRodData(toY: 5, color: Colors.blue, width: 16)
-                    ]),
-                    BarChartGroupData(x: 1, barRods: [
-                      BarChartRodData(toY: 3, color: Colors.blue, width: 16)
-                    ]),
-                    BarChartGroupData(x: 2, barRods: [
-                      BarChartRodData(toY: 7, color: Colors.blue, width: 16)
-                    ]),
-                  ],
-                  titlesData: 
-                  FlTitlesData(showTitles:false),
-                 ),
+            Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(12),
               ),
-              ),
-          ),
-              const SizedBox(height: 20),
-              
-              //Health Detials Section with Line Chart Visualization
-              const Text(
-                'Health Details',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: BarChart(
+                  BarChartData(
+                    barGroups: [
+                      BarChartGroupData(x: 0, barRods: [
+                        BarChartRodData(toY: 5, color: Colors.blue, width: 16)
+                      ]),
+                      BarChartGroupData(x: 1, barRods: [
+                        BarChartRodData(toY: 3, color: Colors.blue, width: 16)
+                      ]),
+                      BarChartGroupData(x: 2, barRods: [
+                        BarChartRodData(toY: 7, color: Colors.blue, width: 16)
+                      ]),
+                    ],
+                    titlesData: FlTitlesData(show: false),
+                  ),
                 ),
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: LineChart(
-                    LineChartData(
-                      gridData: FlGridData(show: false),
-                      titlesData: FlTitlesData(show: false),
-                      borderData: FlBorderData(show: false),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: [
-                            FlSpot(0, 70), // Day 1
-                          FlSpot(1, 72), // Day 2
-                          FlSpot(2, 74), // Day 3
-                          FlSpot(3, 71), // Day 4
-                          FlSpot(4, 73), // Day 5
-                          ],
-                          isCurved: true,
-                          colors: [Colors.red],
-                          barWidth: 4,
-                          belowBarData: 
-                              BarAreaData(show:false), // Makes sure no shaded area below the line
-                        ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
+            const SizedBox(height: 20),
 
+            // Health Details Section with Line Chart Visualization
+            const Text(
+              'Health Details',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: LineChart(
+                  LineChartData(
+                    gridData: FlGridData(show: false),
+                    titlesData: FlTitlesData(show: false),
+                    borderData: FlBorderData(show: false),
+                    lineBarsData: [
+                      LineChartBarData(
+                        spots: [
+                          FlSpot(0, 70),
+                          FlSpot(1, 72),
+                          FlSpot(2, 74),
+                          FlSpot(3, 71),
+                          FlSpot(4, 73),
+                        ],
+                        isCurved: true,
+                        colors: [Colors.red],
+                        barWidth: 4,
+                        belowBarData: BarAreaData(show: false),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 20),
 
             // Goals Section with a Circular Progress Indicator Visualization
@@ -125,11 +122,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               height: 150,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.grey[200]
+                color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(12),
               ),
-              margin:
-                const EdgeInsets.symmetric(vertical: 10),
+              margin: const EdgeInsets.symmetric(vertical: 10),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -151,7 +147,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         ),
                       ),
                       const Text(
-                        75%, 
+                        '75%',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -162,7 +158,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
 
             // Upcoming Features Section
@@ -188,7 +183,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           ],
         ),
       ),
-      // Bottom Navigation Bar with labels only
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
         onTap: (index) {
@@ -196,18 +190,22 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             selectedIndex = index;
           });
         },
-        items: [
-          const BottomNavigationBarItem(
-            label: 'Work Log', icon: SizedBox.shrink(), // Label for Work Log
+        items: const [
+          BottomNavigationBarItem(
+            label: 'Work Log',
+            icon: SizedBox.shrink(),
           ),
           BottomNavigationBarItem(
-            label: 'CalTrack', icon: SizedBox.shrink(), // Label for CalTrack
+            label: 'CalTrack',
+            icon: SizedBox.shrink(),
           ),
-          const BottomNavigationBarItem(
-            label: 'ProTrack', icon: SizedBox.shrink(), // Label for Progress Tracker
+          BottomNavigationBarItem(
+            label: 'ProTrack',
+            icon: SizedBox.shrink(),
           ),
-          const BottomNavigationBarItem(
-            label: 'Settings', icon: Icon(Icons.settings), // Label for Settings
+          BottomNavigationBarItem(
+            label: 'Settings',
+            icon: Icon(Icons.settings),
           ),
         ],
       ),
